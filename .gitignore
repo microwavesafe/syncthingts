@@ -1,0 +1,30 @@
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# VSCode
+.vscode/*
+
+# dotenv
+.env
+
+# pkg output
+server*
+
+# index database
+*.db
+
+# certificates
+*.pem
+
+# cache folder
+cache/

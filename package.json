@@ -1,0 +1,37 @@
+{
+  "name": "syncthingts",
+  "version": "0.0.1",
+  "description": "syncthing client library in typescript",
+  "main": "dist/syncthing.js",
+  "types": "dist/syncthing.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "del dist/",
+    "build": "tsc",
+    "postbuild": "cpy '**/*' '!**/*.ts' ../dist/ --cwd=src/ --no-overwrite --parents"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/microwavesafe/syncthingts.git"
+  },
+  "author": "Andrew Gatt",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/microwavesafe/syncthingts/issues"
+  },
+  "homepage": "https://github.com/microwavesafe/syncthingts#readme",
+  "devDependencies": {
+    "@types/node": "^13.7.4",
+    "cpy-cli": "^3.1.0",
+    "del-cli": "^3.0.0"
+  },
+  "dependencies": {
+    "base32-decode": "^1.0.0",
+    "base32-encode": "^1.1.1",
+    "better-sqlite3": "^5.4.3",
+    "fs-extra": "^8.1.0",
+    "lz4js": "^0.2.0",
+    "node-forge": "^0.9.1",
+    "protobufjs": "^6.8.8"
+  }
+}
