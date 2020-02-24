@@ -82,7 +82,7 @@ export default class Syncthing {
                     this.event.emit('connected');
                 }
                 catch (e) {
-                    console.error('Core::processPeerMessage: cluster config error', e);
+                    console.error('Syncthing::processPeerMessage: cluster config error', e);
                 }
                 break;
             }
@@ -99,7 +99,7 @@ export default class Syncthing {
                     }
                 }
                 catch (e) {
-                    console.error('Core::processPeerMessage: index update error', e);
+                    console.error('Syncthing::processPeerMessage: index update error', e);
                 }
                 break;
             }
@@ -107,21 +107,21 @@ export default class Syncthing {
             case ProtocolMessage.RESPONSE: {
                 try {
                     const response = <Response>message;
-                    console.debug('Core::processMessage: response', response.id);
+                    console.debug('Syncthing::processMessage: response', response.id);
 
                     if (response.code !== 0) {
                         // TODO: we have an error decide what to do
                         // 1 - generic error (?)
                         // 2 - no such file, clear requestBlocks
                         // 3 - invalid, file exists, but invalid bit set
-                        console.error('Core::processPeerMessage: response has error code');
+                        console.error('Syncthing::processPeerMessage: response has error code');
                         return;
                     }
 
                     // requests.received function checks hash matches db entry
                     const blockRequest: BlockRequest = this.requests.received(response.id, response.data);
                     if (blockRequest) {
-                        console.debug('Core::processPeerMessage: response block found and hash matches', blockRequest);
+                        console.debug('Syncthing::processPeerMessage: response block found and hash matches', blockRequest);
                         const path = File.path(this.cachePath, blockRequest.folder, blockRequest.fileId, blockRequest.block.offset);
                         await File.writeBlock(path, response.data);
                         // writeBlock will throw on error, so this wont run
@@ -129,11 +129,11 @@ export default class Syncthing {
                         this.database.updateBlock(blockRequest);
                     }
                     else {
-                        console.error('Core::processPeerMessage: response block not found');
+                        console.error('Syncthing::processPeerMessage: response block not found');
                     }
                 }
                 catch(e) {
-                    console.error('Core::processPeerMessage: response error', e);
+                    console.error('Syncthing::processPeerMessage: response error', e);
                 }
                 break;
             }
@@ -142,7 +142,7 @@ export default class Syncthing {
 
     constructor(name: string, cachePath: string, certPath: string, keyPath: string, dbPath: string) {
         this.cachePath = cachePath;
-        console.debug('Core:: caching to path', this.cachePath);
+        console.debug('Syncthing:: caching to path', this.cachePath);
 
         this.communication = new Communication(certPath, keyPath, name, false);
 
@@ -191,7 +191,7 @@ export default class Syncthing {
     async connect(url: string, peerIdString: string) {
     	this.peerId = Authentication.fromString(peerIdString);
         if (this.peerId.valid === false) {
-        	console.error('Core::connect: invalid peer ID', peerIdString);
+        	console.error('Syncthing::connect: invalid peer ID', peerIdString);
             return;
         }
 
@@ -203,7 +203,7 @@ export default class Syncthing {
                     url = discoverReply.addresses[0];
                 }
                 else {
-                    console.error('Core::connect: could not discover address for peer');
+                    console.error('Syncthing::connect: could not discover address for peer');
                     return;
                 }
             }
@@ -216,7 +216,7 @@ export default class Syncthing {
             await this.communication.connect(url, this.peerId);
         }
         catch (err) {
-            console.error('Core::connect: failed to connect', err);
+            console.error('Syncthing::connect: failed to connect', err);
             this.event.emit('error');
         }
     }
@@ -224,30 +224,30 @@ export default class Syncthing {
     // path should start with folder.path
     attributes(path: string) : ListEntry | null {
         if (typeof path !== 'string') {
-            console.error('Core::attributes: path is not a string');
+            console.error('Syncthing::attributes: path is not a string');
             return null;
         }
-        console.debug('Core::attributes:', path);
+        console.debug('Syncthing::attributes:', path);
         try {
             return this.database.attributes(path);
         }
         catch(e) {
-            console.error('Core::attributes: error', e);
+            console.error('Syncthing::attributes: error', e);
             return null;
         }
     }
 
     list(path: string) : ListEntry[] {
         if (typeof path !== 'string') {
-            console.error('Core::list: path is not a string');
+            console.error('Syncthing::list: path is not a string');
             return [];
         }
-        console.debug('Core::list:', path);
+        console.debug('Syncthing::list:', path);
         try {
             return this.database.list(path);
         }
         catch(e) {
-            console.error('Core::list: error', e);
+            console.error('Syncthing::list: error', e);
             return [];
         }
     }
@@ -255,7 +255,7 @@ export default class Syncthing {
     async read(path: string, position: number, length: number) : Promise<Uint8Array> {
 
         if (length > 10485760) {
-            console.error('Core::read: requested length more than 10MB');
+            console.error('Syncthing::read: requested length more than 10MB');
             return new Uint8Array(0);
         }
 
@@ -266,7 +266,7 @@ export default class Syncthing {
                 length
             );
 
-            console.debug('Core::read: required blocks', blockRequests);
+            console.debug('Syncthing::read: required blocks', blockRequests);
             const readData = new Uint8Array(length);
             const blockReads : BlockRead[] = [];
 
@@ -311,7 +311,7 @@ export default class Syncthing {
                 const relativeEnd = relativeStart + length;
                 const end = relativeEnd > block.size ? block.size : relativeEnd;
 
-                console.debug('Core::read: sub array start, end, offset', start, end, readOffset);
+                console.debug('Syncthing::read: sub array start, end, offset', start, end, readOffset);
                 readData.set(blockData.subarray(start, end), readOffset);
                 readOffset += end - start;
 
@@ -322,7 +322,7 @@ export default class Syncthing {
             return readData.subarray(0, readOffset);
         }
         catch (err) {
-            console.error('Core::read: read failed to get required blocks', err);
+            console.error('Syncthing::read: read failed to get required blocks', err);
             new Uint8Array(0);
         }
     }
